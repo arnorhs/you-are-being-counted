@@ -1,5 +1,6 @@
 import { defineConfig } from 'astro/config'
 import db from '@astrojs/db'
+import netlify from '@astrojs/netlify'
 
 import tailwind from '@astrojs/tailwind'
 
@@ -7,4 +8,5 @@ import tailwind from '@astrojs/tailwind'
 export default defineConfig({
   integrations: [db(), tailwind()],
   output: 'server',
+  adapter: netlify(),
 })
