@@ -14,6 +14,9 @@ const Hits = defineTable({
       unique: true,
       on: ['path', 'dateKey'],
     },
+    createdDate: {
+      on: 'dtCreated',
+    },
   },
 })
 
