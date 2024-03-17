@@ -1,0 +1,56 @@
+---
+import Tab from './Tab.astro'
+
+const period = Astro.props.period as string
+const { hits } = Astro.props as { hits: { thedate: Date; hits: number }[] }
+const max = Math.max(...hits.map((hit) => hit.hits), 0)
+---
+
+<div class="flex justify-end">
+  <Tab selected={period === 'month'} href="?period=month">This month</Tab>
+  <Tab selected={period === 'day'} href="?period=day">Last 24 hours</Tab>
+  <Tab selected={period === 'hour'} href="?period=hour">Last hour</Tab>
+</div>
+<div class="bg-brand-50 flex justify-between overflow-hidden rounded-b-md rounded-tl-md">
+  {
+    hits.map((hit) => (
+      <div class="relative h-[300px] flex-1 flex-grow">
+        <div
+          class="
+          bg-brand-500
+          absolute
+          bottom-0
+          left-[50%]
+          w-full
+          max-w-[20px]
+          translate-x-[-50%]
+          rounded-t-sm
+        "
+          style={{
+            height: `${Math.round((95 * hit.hits) / max)}%`,
+          }}
+        >
+          <div
+            class="
+            origin-bottom-right
+            translate-x-[-1px]
+            translate-y-[-10px]
+            -rotate-90
+            text-right
+            text-xs
+            font-bold
+            text-white
+          "
+          />
+        </div>
+      </div>
+    ))
+  }
+</div>
+<div class="flex justify-end">
+  <div class="text-xs text-gray-500">
+    {hits[0].thedate.toISOString()}
+    -
+    {hits[hits.length - 1].thedate.toISOString()}
+  </div>
+</div>

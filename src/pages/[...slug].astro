@@ -1,6 +1,13 @@
 ---
 import { type Period, queryHits } from '../lib/hits/queryHits'
 import { recordHits } from '../lib/hits/recordHits'
+import Layout from '../components/Layout.astro'
+import Tag from '../components/Tag.astro'
+import HitsTimeline from '../components/HitsTimeline.astro'
+import Header from '../components/Header.astro'
+import Title from '../components/Title.astro'
+import Panel from '../components/Panel.astro'
+import z from 'zod'
 
 const { slug = '' } = Astro.params
 
@@ -8,51 +15,29 @@ if (slug.includes('.')) {
   return Astro.redirect('/404')
 }
 
-const period = (Astro.url.searchParams.get('period') ?? 'hour') as Period
+const period = z
+  .enum(['hour', 'day', 'month', 'year'])
+  .default('hour')
+  .parse(Astro.url.searchParams.get('period') ?? 'hour')
+
 const path = `/${slug}`
 await recordHits(path, new Date())
-const { hits, max } = await queryHits(path, period, new Date())
+const hits = await queryHits(path, period, new Date())
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>You are being counted</title>
-  </head>
-  <body>
-    <h1>You are being counted</h1>
-    <h2>Visits to {path}</h2>
-    <div class="flex w-full justify-between overflow-hidden">
-      {
-        hits.map((hit) => (
-          <div class="relative h-[200px] w-[40px] bg-slate-100">
-            <div
-              class={`absolute bottom-0 left-[10px] w-[18px] bg-blue-500`}
-              style={{
-                height: `${Math.round((100 * hit.hits) / max)}%`,
-              }}
-            >
-              <div
-                class="
-                  origin-bottom-right
-                  translate-x-[-1px]
-                  translate-y-[-10px]
-                  -rotate-90
-                  text-right
-                  text-xs
-                  font-bold
-                  text-white
-                "
-              >
-                {hit.hits}
-              </div>
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </body>
-</html>
+<Layout title="You are being counted">
+  <Header>
+    <Title>You are being counted</Title>
+    <p class="mt-5">
+      This is a demo project made by
+      <a target="_blank" class="text-brand-700 underline" href="https://arnorhs.dev">arnorhs</a>
+      to play with
+      <a target="_blank" class="text-brand-700 underline" href="https://astro.build/db/">Astro db</a
+      >
+    </p>
+  </Header>
+  <Panel>
+    <h2 class="mt-5 text-2xl font-bold">Showing hits to <Tag>{path}</Tag></h2>
+    <HitsTimeline hits={hits} period={period} />
+  </Panel>
+</Layout>
