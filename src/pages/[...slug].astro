@@ -1,0 +1,45 @@
+---
+import { type Period, queryHits } from '../lib/hits/queryHits'
+import { recordHits } from '../lib/hits/recordHits'
+
+const { slug = '' } = Astro.params
+
+if (slug.includes('.')) {
+  return Astro.redirect('/404')
+}
+
+const period = (Astro.url.searchParams.get('period') ?? 'hour') as Period
+const path = `/${slug}`
+await recordHits(path, new Date())
+const { hits, max } = await queryHits(path, period, new Date())
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>You are being counted</title>
+  </head>
+  <body>
+    <h1>You are being counted</h1>
+    <h2>Visits to {path}</h2>
+    <div class="w-full overflow-hidden flex justify-between">
+      {
+        hits.map((hit) => (
+          <div class="bg-slate-100 w-[40px] h-[200px] relative">
+            <div
+              class={`bg-blue-500 absolute bottom-0 left-[10px] w-[20px]`}
+              style={{
+                height: `${Math.round((100 * hit.hits) / max)}%`,
+              }}
+            >
+              <div class="-rotate-90 center text-black">{hit.hits}</div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </body>
+</html>
