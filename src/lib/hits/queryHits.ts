@@ -1,4 +1,4 @@
-import { db, Hits, sql, eq, and, gt, gte } from 'astro:db'
+import { db, Hits, eq, and, gt } from 'astro:db'
 
 export type Period = 'hour' | 'day' | 'week' | 'month' | 'year'
 
